@@ -1,0 +1,12 @@
+prefix=/Users/yujitai/Aliyun/tenfold-sfu/trunk/objs/Platform-Darwin-19.5.0-Clang12.0.0-SRS4/openssl-1.1-fit/_release
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+enginesdir=${libdir}/engines-1.1
+
+Name: OpenSSL-libcrypto
+Description: OpenSSL cryptography library
+Version: 1.1.1b
+Libs: -L${libdir} -lcrypto
+Libs.private:  
+Cflags: -I${includedir}

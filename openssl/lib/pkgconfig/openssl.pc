@@ -1,0 +1,9 @@
+prefix=/Users/yujitai/Aliyun/tenfold-sfu/trunk/objs/Platform-Darwin-19.5.0-Clang12.0.0-SRS4/openssl-1.1-fit/_release
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: OpenSSL
+Description: Secure Sockets Layer and cryptography libraries and tools
+Version: 1.1.1b
+Requires: libssl libcrypto
