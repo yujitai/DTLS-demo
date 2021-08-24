@@ -12,6 +12,8 @@
 
 #include <iostream>
 
+#include "dtls_common.h"
+
 // TODO: 支持切片发送
 
 int fd = -1;
@@ -62,6 +64,14 @@ int init_OpenSSL()
 
     ctx = SSL_CTX_new(DTLS_server_method());
 
+	// 使用 API 解析custom ext
+	unsigned int ext_type = 323;
+	char* parse_arg = new char[128];
+	int r = SSL_CTX_add_server_custom_ext(ctx, ext_type, NULL, NULL, NULL, ext_parse_cb, parse_arg);
+	if (r == 0) {
+		return -1;
+	}
+
     assert(SSL_CTX_use_certificate_chain_file(ctx, "./myalirtc.com_SHA256withRSA_RSA.crt") == 1);
     assert(SSL_CTX_use_PrivateKey_file(ctx, "./myalirtc.com_SHA256withRSA_RSA.key", SSL_FILETYPE_PEM) == 1);
     SSL_CTX_set_default_verify_file(ctx);
@@ -81,6 +91,17 @@ int recv_DTLS_message()
     nread = recvfrom(fd, recv_buf, 1500, 0, (struct sockaddr*)&cli_addr, &cli_addr_len);
     // TODO: parse DTLS Message type.
     printf("recv DTLS message: %s len: %d ip: %s port: %d\n", recv_buf, nread, inet_ntoa(cli_addr.sin_addr), ntohs(cli_addr.sin_port));
+
+	int content_type = recv_buf[0];
+	int handshake_type = recv_buf[13];
+
+	// 手动解析custom ext
+	if (content_type == 22 && handshake_type == 1) {
+		std::string user_info;
+		if (0 == parse_client_hello_custom_ext(recv_buf, nread, user_info)) {
+			std::cout << "手动解析custom ext: userinfo=" << user_info << std::endl;
+		}
+	}
 }
 
 int do_DTLS_handshake()

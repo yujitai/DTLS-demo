@@ -12,6 +12,8 @@
 #include <openssl/ssl.h>
 #include <openssl/bio.h>
 
+#include "dtls_common.h"
+
 int fd = -1;
 
 
@@ -44,6 +46,16 @@ int main(int ac, const char *av[])
 
     SSL_CTX* ctx = NULL;
     ctx = SSL_CTX_new(DTLS_client_method());
+
+	// set user custom info in dtls extension
+	unsigned int ext_type = 323;
+	char* add_arg = new char[128];
+	memcpy(add_arg, "taiyi0323", 10);
+	int result = SSL_CTX_add_client_custom_ext(ctx, ext_type, ext_add_cb, ext_free_cb, add_arg, NULL, NULL);
+	if (result == 0) {
+		std::cout << "SSL_CTX_add_client_custom_ext error" << std::endl;
+		return -1;
+	}
     
     assert(SSL_CTX_use_certificate_chain_file(ctx, "./myalirtc.com_SHA256withRSA_RSA.crt") == 1);
     assert(SSL_CTX_use_PrivateKey_file(ctx, "./myalirtc.com_SHA256withRSA_RSA.key", SSL_FILETYPE_PEM) == 1);
